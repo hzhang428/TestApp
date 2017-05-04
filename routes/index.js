@@ -3,7 +3,22 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Form Validation', success: req.session.success, errors: req.session.errors });
+  req.session.errors = null;
+});
+
+router.post('/submit', function(req, res, next) {
+  req.check('email', 'Please enter a valid email').isEmail();
+  req.check('password', 'Password does not meet the requirement').isLength({ min: 4 }).equals(req.body.confirmPassword);
+
+  var errors = req.validationErrors();
+  if (errors) {
+    req.session.errors = errors;
+    req.session.success = false;
+  } else {
+    req.session.success = true;
+  }
+  res.redirect('/');
 });
 
 module.exports = router;

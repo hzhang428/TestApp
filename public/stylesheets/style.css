@@ -6,3 +6,48 @@ body {
 a {
   color: #00B7FF;
 }
+
+label {
+  display: block;
+  padding: 0 0 3px 0;
+}
+
+input {
+  display: block;
+}
+
+button {
+  border: none;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  padding: 10px 15px;
+  margin: 5px 0 0 3px;
+  background: #4CAF50;
+}
+
+.input {
+  margin: 0 0 8px 0;
+  padding: 3px 3px 3px 3px;
+}
+
+#validation-success {
+  display: block;
+  background: #4CAF50;
+  padding: 5px 5px 5px 10px;
+  width: 300px;
+}
+
+li {
+  color: white;
+  list-style: none;
+  background: #d17373;
+  padding: 5px 5px 5px 10px;
+  width: 300px;
+}
+
+.success {
+  margin: 5px 0 10px 0;
+}
+
