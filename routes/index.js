@@ -1,9 +1,22 @@
 var express = require('express');
 var router = express.Router();
-var mongo = require('mongodb');
+var mongoose = require('mongoose');
 var assert = require('assert');
 
+mongoose.connect('localhost:27017/test');
+
+var db = mongoose.connection;
+var Schema = mongoose.Schema;
+
 var url = 'mongodb://localhost:27017/test';
+
+var bookSchema = new Schema ({
+    title: {type: String, required: true},
+    content: String,
+    author: String
+});
+
+var Book = mongoose.model('Book', bookSchema);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -30,75 +43,46 @@ router.post('/submit', function(req, res, next) {
   res.redirect('/');
 });
 
-
 router.get('/get-data', function(req, res, next) {
-  var results = [];
-  mongo.connect(url, function(err, db) {
-    if (err) {
-        req.session.errors = true;
-    } else {
-        req.session.errors = true;
-    }
-    var cursor = db.collection('user-data').find();
-    cursor.forEach(function(doc, err) {
-      assert.equal(null, err);
-      results.push(doc);
-    }, function() {
-      db.close();
-      res.render('index', {items: results});
-    });
+  Book.find().then(function(doc) {
+    res.render('index', {items: doc});
   });
 });
 
 router.post('/insert', function(req, res, next) {
-  var item = {
-    title: req.body.title,
-    content: req.body.content,
-    author: req.body.author
-  };
-
-  mongo.connect(url, function(err, db) {
-    assert.equal(null, err);
-    db.collection('user-data').insertOne(item, function(err, result) {
-      assert.equal(null, err);
-      db.close();
-    });
+  var item = new Book({
+      title: req.body.title,
+      content: req.body.content,
+      author: req.body.author
   });
+  item.save();
 
-  res.redirect('/');
+  res.redirect('/')
 });
 
 router.post('/update', function(req, res, next) {
-  console.log(req.body);
   var item = {
-    id: req.body.id,
     title: req.body.title,
     content: req.body.content,
     author: req.body.author
   };
-  mongo.connect(url, function(err, db) {
-    assert.equal(null, err);
-    db.collection('user-data').updateOne({ _id : new mongo.ObjectID(item.id) },
-        { $set: {title: item.title, content: item.content, author: item.author} }, function(err, r) {
-      assert.equal(null, err);
-      assert.equal(1, r.result.n);
-      assert.equal(1, r.result.nModified);
-      db.close();
-    });
+
+  Book.update({ _id: req.body.id }, item, function(err, raw) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(raw);
+    }
   });
 
   res.redirect('/');
 });
 
 router.post('/delete', function(req, res, next) {
-  var id = req.body.id;
-  mongo.connect(url, function(err, db) {
-    assert.equal(null, err);
-    db.collection('user-data').deleteOne({ _id : new mongo.ObjectID(id) }, function(err, r) {
-      assert.equal(null, err);
-      assert.equal(1, r.result.n);
-      db.close();
-    });
+  Book.remove({ _id: req.body.id }, function(err) {
+    if (err) {
+      console.log(err);
+    }
   });
 
   res.redirect('/');
